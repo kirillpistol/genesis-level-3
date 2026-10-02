@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.env
+.local-certs/
+*.key
+*.pem
+config.local.json
+checkpoint*.json
