@@ -14,3 +14,9 @@ class AdapterTests(unittest.TestCase):
         class Client:
             def request(self,*args):raise TimeoutError()
         with self.assertRaises(TimeoutError):Adapter(Client(),'https://localhost','numeric').send(1)
+
+    def test_correlation_propagation(self):
+        class Client:
+            def request(self,*args,**kwargs):return kwargs
+        result=Adapter(Client(),'https://localhost','numeric').send(1,correlation_id='source-123')
+        self.assertEqual(result,{'correlation_id':'source-123'})

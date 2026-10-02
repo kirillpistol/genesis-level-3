@@ -22,9 +22,11 @@ from level1_core.discovery import client_from
 from level3_data.adapter import Adapter
 
 with open('../pistol-genesis-ai/.local-certs/client.json') as file:
-    client = client_from(json.load(file))
-client.request('https://localhost:8443', '/v1/algorithms/attach',
+    control = client_from(json.load(file))
+control.request('https://localhost:8443', '/v1/algorithms/attach',
                {'api_version': '1.0', 'name': 'numeric'})
+with open('../pistol-genesis-ai/.local-certs/data.json') as file:
+    client = client_from(json.load(file))
 adapter = Adapter(client, 'https://localhost:8443', 'numeric')
 for result in adapter.stream(iter([10, 20, 30])):
     print(result)
@@ -54,7 +56,19 @@ python -m unittest discover -s tests -v
 ```
 
 Конкретные коннекторы к внешним сервисам, event_id/deduplication, очереди,
-роли control/data и автоматическое переключение после переноса пока отсутствуют.
+автоматическое переключение после переноса пока отсутствует. Роли control/data реализованы ядром; записи отправляйте data-клиентом, attach — control-клиентом.
 Хранение на стороне источника/потребителя контролирует пользователь.
 Обучение и обмен состояниями отложены до проверки числового этапа.
 [ADR](https://github.com/kirillpistol/pistol-genesis-ai/blob/main/docs/adr/0001-transport-boundaries-versioning.md).
+
+## Correlation и CI
+
+Adapter.send(record, correlation_id="source-123") передаёт ID в X-Correlation-ID
+через транспорт ядра. Без аргумента transport создаёт UUID. Для stream используйте
+обычный цикл send, если требуется один ID для всей операции; тела не логируются.
+
+CI во всех трёх репозиториях запускает полный e2e и frozen/current совместимость
+в обоих направлениях. В e2e Adapter получает записи из отдельного HTTP-сервера,
+переключается на живой узел после переноса и проверяет числовой результат/MAE/RMSE.
+Корреляция не является event_id и не даёт дедупликацию. Повторы задач, DLQ,
+rate limits источника и durable очередь пока не реализованы.
