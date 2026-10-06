@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "job_format",
+    "job_id",
+    "binding_id",
+    "passport_sha256",
+    "environment_sha256",
+    "expected_cursor",
+    "max_records",
+    "correlation_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "job_format": {
+      "const": "bound-job/1"
+    },
+    "job_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "binding_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "passport_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "environment_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "expected_cursor": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4096
+    },
+    "max_records": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 64
+    },
+    "correlation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    }
+  }
+}

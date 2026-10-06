@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "environment_format",
+    "environment_id",
+    "environment_version",
+    "binding_id",
+    "passport_sha256",
+    "adapter_contract",
+    "level2_package_sha256",
+    "components"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "environment_format": {
+      "const": "level3-environment/1"
+    },
+    "environment_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "environment_version": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "binding_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "passport_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "adapter_contract": {
+      "const": "bound-stream/1"
+    },
+    "level2_package_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "components": {
+      "type": "object",
+      "minProperties": 1,
+      "maxProperties": 64,
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      }
+    }
+  }
+}

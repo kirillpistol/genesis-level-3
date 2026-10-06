@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": [
+    "result_format",
+    "job_id",
+    "binding_id",
+    "correlation_id",
+    "environment_sha256",
+    "processed",
+    "checkpoint",
+    "complete",
+    "last_result"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "result_format": {
+      "const": "bound-job-result/1"
+    },
+    "job_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "binding_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "correlation_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "environment_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "processed": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 64
+    },
+    "checkpoint": {
+      "type": "object",
+      "required": [
+        "passport_sha256",
+        "next_record"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "passport_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "next_record": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 4096
+        }
+      }
+    },
+    "complete": {
+      "type": "boolean"
+    },
+    "last_result": {
+      "type": [
+        "object",
+        "null"
+      ]
+    }
+  }
+}
