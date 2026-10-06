@@ -39,7 +39,7 @@ class MesmClient:
         if cert_file:context.load_cert_chain(cert_file,key_file)
         self.opener=build_opener(ProxyHandler({}),NoRedirect(),HTTPSHandler(context=context))
     def request(self,path,query=None,html=False,body=None):
-        if path not in {"/v1/health","/v1/catalog","/v1/municipalities","/v1/data","/v1/report","/v1/sources","/v1/trace","/v1/node","/v1/report-package","/v1/sessions/open","/v1/sessions/close"}:raise ValueError("Unknown source route")
+        if path not in {"/v1/health","/v1/catalog","/v1/municipalities","/v1/data","/v1/report","/v1/sources","/v1/trace","/v1/node","/v1/report-package","/v1/sessions/open","/v1/sessions/close","/v1/methodology"}:raise ValueError("Unknown source route")
         url=self.origin+path+("?"+urlencode(query) if query else "")
         raw_body=None if body is None else json.dumps(body,allow_nan=False).encode()
         req=Request(url,data=raw_body,headers={"Authorization":"Bearer "+self.token,"Content-Type":"application/json"})

@@ -24,6 +24,7 @@ def run(root):
     assert summary['sources'][0]['status']=='collected' and summary['sources'][0]['cycle_closed']
     assert not summary['databases_merged'] and not summary['raw_inputs_collected']
     packages.append(json.loads((path/'mesm-surgut/package.json').read_text()))
+    assert (path/'mesm-surgut/methodology.json').exists()
    assert packages[0]['snapshot_id']==packages[1]['snapshot_id']
    assert packages[0]['budget_calculations']==packages[1]['budget_calculations']
    print('PASS: independent MESM HTTPS/mTLS -> external manager; two completed cycles; stable financial results; no core startup or database merge')

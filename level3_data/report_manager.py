@@ -33,7 +33,18 @@ def collect(config,output,client_factory=MesmClient):
             report=package["report"]
             if report["format"]!="html" or hashlib.sha256(report["content"].encode()).hexdigest()!=report["sha256"]:
                 raise ValueError("Report integrity mismatch")
+            methodology=None
+            if "methodology" in package:
+                methodology=client.request("/v1/methodology")
+                expected=package["methodology"]["methodology_id"]
+                raw={k:v for k,v in methodology.items() if k!="methodology_id"}
+                actual=hashlib.sha256(json.dumps(raw,ensure_ascii=False,sort_keys=True).encode()).hexdigest()
+                if methodology["methodology_id"]!=expected or actual!=expected or node.get("methodology_id")!=expected:
+                    raise ValueError("Methodology snapshot mismatch")
             folder=run/source["node_id"];folder.mkdir()
+            if methodology is not None:
+                (folder/"methodology.json").write_text(json.dumps(methodology,ensure_ascii=False,indent=2),encoding="utf-8")
+                entry["methodology_id"]=methodology["methodology_id"]
             (folder/"package.json").write_text(json.dumps(package,ensure_ascii=False,indent=2,allow_nan=False),encoding="utf-8")
             (folder/"report.html").write_text(report["content"],encoding="utf-8")
             entry.update(status="collected",period=package["period"],snapshot_id=package["snapshot_id"],report_sha256=report["sha256"],report_file=source["node_id"]+"/report.html")
