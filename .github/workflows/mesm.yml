@@ -1,0 +1,31 @@
+name: MESM real public plan connection
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  mesm:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Checkout four repositories
+        env:
+          SOURCE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          for repo in MESM pistol-genesis-ai genesis-level-2 genesis-level-3; do
+            git clone --depth 1 "https://github.com/kirillpistol/$repo.git" "$repo"
+          done
+          git -C genesis-level-3 fetch --depth 1 origin "$SOURCE_SHA"
+          git -C genesis-level-3 checkout --detach "$SOURCE_SHA"
+      - name: Install MESM data dependencies
+        run: python -m pip install -e ./MESM
+      - name: Test actual source through mTLS core
+        run: |
+          export PYTHONPATH="$PWD/pistol-genesis-ai:$PWD/genesis-level-2:$PWD/genesis-level-3:$PWD/MESM/src"
+          python genesis-level-3/mesm_e2e.py --mesm-root MESM

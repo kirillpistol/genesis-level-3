@@ -80,3 +80,6 @@ rate limits источника и durable очередь пока не реал�
 `python -m level3_data.serve_parts` запускает read-only сервер заранее подготовленных файлов; `python -m level3_data.run_bound` запускает последовательную сборку. Разделяйте client_pins серверов частей по секторам; файлы и ключи не входят в Git. Вручную выпускайте новую data_version и утверждайте обновлённый manifest. Автошардирования, secret sharing и запуска сторонних программ нет.
 
 Новые модули требуют соседнее ядро в PYTHONPATH. [Полный запуск](https://github.com/kirillpistol/pistol-genesis-ai#строгая-ручная-связка-рабочий-локальный-тест), [ADR-0003](https://github.com/kirillpistol/pistol-genesis-ai/blob/main/docs/adr/0003-manual-bindings.md).
+
+## MESM
+`level3_data.mesm.MesmClient` получает каталог, планы и HTML-отчёт локального MESM API по Bearer token. `python -m level3_data.run_mesm --help`: передача в установленный mesm_budget/1 через mTLS client_from (или явно --dev-local). Сверяет snapshot и город, не повторяет задачи. [Инструкция](https://github.com/kirillpistol/MESM/blob/main/docs/37_genesis_connection.md). `mesm_e2e.py --mesm-root <MESM>` проверяет всю связку с настоящим mTLS.
