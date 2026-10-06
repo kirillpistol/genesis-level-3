@@ -1,8 +1,8 @@
 """Read-only MESM source, then explicit delivery through GENESIS transport."""
-import json,os,re
+import json,os,re,ssl,ssl
 from pathlib import Path
 from urllib.parse import urlencode,urlsplit
-from urllib.request import Request,build_opener,ProxyHandler,HTTPRedirectHandler
+from urllib.request import Request,build_opener,ProxyHandler,HTTPRedirectHandler,HTTPSHandler
 from .adapter import Adapter
 
 class NoRedirect(HTTPRedirectHandler):
@@ -25,15 +25,24 @@ def decode(raw):
     return json.loads(raw,object_pairs_hook=pairs,parse_constant=lambda x:(_ for _ in ()).throw(ValueError("Non-finite JSON")))
 
 class MesmClient:
-    def __init__(self,origin,token,timeout=15):
-        self.origin=local_origin(origin)
+    def __init__(self,origin,token,timeout=15,ca_file=None,cert_file=None,key_file=None):
+        parsed=urlsplit(origin)
+        if parsed.scheme=="http":self.origin=local_origin(origin)
+        elif parsed.scheme=="https" and parsed.hostname and not parsed.username and not parsed.password and parsed.path in ("", "/") and not parsed.query and not parsed.fragment:
+            self.origin=origin.rstrip("/")
+        else:raise ValueError("Expected configured HTTPS origin or loopback test HTTP")
         if len(token)<24:raise ValueError("MESM token required")
         self.token=token;self.timeout=timeout
-        self.opener=build_opener(ProxyHandler({}),NoRedirect())
-    def request(self,path,query=None,html=False):
-        if path not in {"/v1/health","/v1/catalog","/v1/municipalities","/v1/data","/v1/report","/v1/sources","/v1/trace"}:raise ValueError("Unknown source route")
+        context=ssl.create_default_context(cafile=ca_file)
+        context.minimum_version=ssl.TLSVersion.TLSv1_2
+        if bool(cert_file)!=bool(key_file):raise ValueError("Client cert/key must be supplied together")
+        if cert_file:context.load_cert_chain(cert_file,key_file)
+        self.opener=build_opener(ProxyHandler({}),NoRedirect(),HTTPSHandler(context=context))
+    def request(self,path,query=None,html=False,body=None):
+        if path not in {"/v1/health","/v1/catalog","/v1/municipalities","/v1/data","/v1/report","/v1/sources","/v1/trace","/v1/node","/v1/report-package","/v1/sessions/open","/v1/sessions/close"}:raise ValueError("Unknown source route")
         url=self.origin+path+("?"+urlencode(query) if query else "")
-        req=Request(url,headers={"Authorization":"Bearer "+self.token})
+        raw_body=None if body is None else json.dumps(body,allow_nan=False).encode()
+        req=Request(url,data=raw_body,headers={"Authorization":"Bearer "+self.token,"Content-Type":"application/json"})
         with self.opener.open(req,timeout=self.timeout) as response:
             raw=response.read(2*1024*1024+1)
             if len(raw)>2*1024*1024:raise ValueError("Source response too large")

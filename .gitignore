@@ -8,3 +8,6 @@ config.local.json
 checkpoint*.json
 
 .local-bindings/
+
+report_manager.local.json
+reports/

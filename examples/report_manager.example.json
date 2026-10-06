@@ -1,0 +1,16 @@
+{
+  "contract": "genesis.report-manager/1",
+  "sources": [
+    {
+      "node_id": "mesm-surgut",
+      "municipality": "Сургут",
+      "origin": "https://mesm.example.org:8765",
+      "token_env": "MESM_SURGUT_TOKEN",
+      "tls": {
+        "ca_file": "/path/to/ca.crt",
+        "cert_file": "/path/to/manager.crt",
+        "key_file": "/path/to/manager.key"
+      }
+    }
+  ]
+}

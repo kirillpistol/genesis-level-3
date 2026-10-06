@@ -29,3 +29,8 @@ jobs:
         run: |
           export PYTHONPATH="$PWD/pistol-genesis-ai:$PWD/genesis-level-2:$PWD/genesis-level-3:$PWD/MESM/src"
           python genesis-level-3/mesm_e2e.py --mesm-root MESM
+
+      - name: Independent source session lifecycle over mTLS
+        run: |
+          export PYTHONPATH="$PWD/pistol-genesis-ai:$PWD/genesis-level-3:$PWD/MESM/src"
+          python genesis-level-3/report_manager_e2e.py --mesm-root MESM
